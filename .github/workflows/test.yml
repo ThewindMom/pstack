@@ -1,0 +1,34 @@
+name: Capy port verification
+on:
+  push:
+    branches: [capy-port]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Require pinned source
+        run: test -f _upstream/pstack/LICENSE
+      - name: Tests including full upstream integration
+        run: python3 -m unittest discover -s tests -v
+      - name: Build and verify both installation scopes
+        run: |
+          python3 tools/pstack.py install --target dist/project > /tmp/pstack-project-install.json
+          python3 tools/pstack.py doctor --target dist/project
+          python3 tools/pstack.py install --volume --target dist/volume > /tmp/pstack-volume-install.json
+          python3 tools/pstack.py doctor --volume --target dist/volume
+          python3 tools/tasks.py prepare examples/plan.json > dist/example-work-order.json
+          tar -czf pstack-capy-bundles.tar.gz -C dist .
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pstack-capy-bundles
+          path: pstack-capy-bundles.tar.gz
+          if-no-files-found: error
+          retention-days: 14

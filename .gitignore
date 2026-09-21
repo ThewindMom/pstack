@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.venv/
+dist/
+.coverage
+*.egg-info/
+.pstack-capy-install.lock
+.pstack-stage-*/
+
+pstack-capy-bundles.tar.gz

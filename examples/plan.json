@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "max_parallel": 3,
+  "parent_depth": 0,
+  "pstack_root": ".agents/pstack",
+  "tasks": [
+    {
+      "id": "api",
+      "repository": "owner/application",
+      "role": "implementation",
+      "goal": "Fix duplicate export rows on retry after reproducing the issue.",
+      "write": true,
+      "scope_paths": ["src/export", "tests/export"],
+      "base_ref": "main",
+      "acceptance": ["A real export retried twice contains each row exactly once."]
+    },
+    {
+      "id": "docs",
+      "repository": "owner/application",
+      "role": "implementation",
+      "goal": "Document existing export retry behavior without changing application code.",
+      "write": true,
+      "scope_paths": ["docs/export.md"],
+      "base_ref": "main",
+      "acceptance": ["The documentation matches observed retry behavior and passes the docs checks."]
+    },
+    {
+      "id": "review-api",
+      "repository": "owner/application",
+      "role": "review",
+      "goal": "Independently review the export fix at its exact head and inspect the reproduction evidence.",
+      "write": false,
+      "scope_paths": ["src/export", "tests/export"],
+      "depends_on": ["api"],
+      "base_from": "api",
+      "acceptance": ["The full export diff and actual regression evidence have an explicit independent verdict."]
+    }
+  ]
+}
